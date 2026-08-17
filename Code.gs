@@ -29,7 +29,8 @@ const PROTECTED_MAIN_FIELDS = Object.freeze([
 // ==========================================
 // API ENDPOINT
 // URL mẫu:
-// /exec?id=<MAIN.id>&template=<ten_template>&username=<user>&password=<pass>
+// /exec?id=<MAIN.id>&hopDongId=<HOP_DONG.id>&template=<ten_template>
+//      &username=<user>&password=<pass>
 // ==========================================
 function doGet(e) {
   return handleRequest_((e && e.parameter) || {});
@@ -57,6 +58,7 @@ function doPost(e) {
 function handleRequest_(params) {
   try {
     const id = clean_(params.id);
+    const requestedHopDongId = clean_(params.hopDongId);
     const template = clean_(params.template) || 'ho_so_nhan_su';
     const username = clean_(params.username || params.user);
     const password = clean_(params.password || params.pass);
@@ -97,13 +99,15 @@ function handleRequest_(params) {
       });
     }
 
-    const related = loadRelatedData_(ss, main);
+    const related = loadRelatedData_(ss, main, requestedHopDongId);
     const mergedData = buildEmployeeData_(main, related);
 
     const response = {
       success: true,
       template: template,
       id: id,
+      hopDongId: clean_(related.hopDongHienTai.id),
+      requested_hop_dong_id: requestedHopDongId,
       key_source: 'MAIN.id',
       data: mergedData
     };
@@ -166,7 +170,7 @@ function authenticate_(ss, username, password) {
 // ĐỌC VÀ LIÊN KẾT DỮ LIỆU
 // Tất cả bảng nghiệp vụ liên kết với MAIN bằng id_main.
 // ==========================================
-function loadRelatedData_(ss, main) {
+function loadRelatedData_(ss, main, requestedHopDongId) {
   const mainId = clean_(main.id);
 
   const hopDongList = findRowsInSheetByField_(
@@ -234,7 +238,10 @@ function loadRelatedData_(ss, main) {
 
   return {
     hopDongList: hopDongList,
-    hopDongHienTai: selectCurrentContract_(hopDongList, main.idHopDong),
+    hopDongHienTai: selectCurrentContract_(
+      hopDongList,
+      requestedHopDongId || main.idHopDong
+    ),
     phuLucHopDongList: sortRowsByDateDesc_(phuLucHopDongList, 'ngayHieuLucPLHD'),
     phuLucHopDongMoiNhat: selectLatestByDate_(phuLucHopDongList, 'ngayHieuLucPLHD'),
     thongTinBoSungList: thongTinBoSungList,
