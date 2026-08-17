@@ -3,7 +3,10 @@ const Utils = {
         const params = new URLSearchParams(window.location.search);
         return {
             template: params.get('template'),
-            id: params.get('id')
+            id: params.get('id'),
+            hopDongId: params.get('hopDongId'),
+            username: params.get('username'),
+            password: params.get('password')
         };
     },
 

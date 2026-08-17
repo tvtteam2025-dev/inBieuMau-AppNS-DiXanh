@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Trạng thái hiện tại
     let currentData = null;
     let currentId = null;
+    let currentHopDongId = null;
 
     // Check Auth
     function checkAuth() {
@@ -61,6 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const params = Utils.getQueryParams();
         const template = params.template || templateSelect.value;
         const id = params.id;
+        const hopDongId = params.hopDongId;
 
         templateSelect.value = template;
 
@@ -72,7 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         recordIdInput.value = id;
-        await loadData(id, template);
+        await loadData(id, hopDongId, template);
     }
 
     async function renderTemplate(templateName) {
@@ -86,9 +88,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Gọi API và render HTML
-    async function loadData(id, template) {
+    async function loadData(id, hopDongId, template) {
         // Tối ưu: Nếu đã có dữ liệu của chính ID này rồi, chỉ cần render lại template
-        if (currentData && currentId === id) {
+        if (currentData && currentId === id && currentHopDongId === hopDongId) {
             await renderTemplate(template);
             return;
         }
@@ -101,7 +103,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const auth = checkAuth();
 
             // Lấy data từ Apps Script
-            const response = await API.fetchData(id, template, auth.user, auth.pass);
+            const response = await API.fetchData(
+                id,
+                hopDongId,
+                template,
+                auth.user,
+                auth.pass
+            );
 
             if (!response.success) {
                 if (response.auth_failed) {
@@ -111,9 +119,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     return;
                 }
 
-                Utils.showStatus(response.message || 'Lỗi API không xác định', 'error');
+                const errorMessage = response.message || 'Lỗi API không xác định';
+                Utils.showStatus(errorMessage, 'error');
                 dataPreview.textContent = JSON.stringify(response, null, 2);
-                documentContent.innerHTML = 'Lỗi lấy dữ liệu từ hệ thống.';
+                documentContent.innerHTML = '';
+                const errorElement = document.createElement('div');
+                errorElement.className = 'status-message error';
+                errorElement.style.display = 'block';
+                errorElement.textContent = errorMessage;
+                documentContent.appendChild(errorElement);
                 return;
             }
 
@@ -126,6 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             currentData = response.data;
             currentId = id;
+            currentHopDongId = hopDongId;
             dataPreview.textContent = JSON.stringify(response.data, null, 2);
 
             // Lấy giao diện template và Render
@@ -141,19 +156,22 @@ document.addEventListener('DOMContentLoaded', () => {
     btnReload.addEventListener('click', () => {
         const id = recordIdInput.value;
         const template = templateSelect.value;
+        const hopDongId = Utils.getQueryParams().hopDongId;
         if (id) {
             currentData = null; // Ép tải lại từ đầu
             currentId = null;
-            loadData(id, template);
+            currentHopDongId = null;
+            loadData(id, hopDongId, template);
         }
     });
 
     templateSelect.addEventListener('change', (e) => {
         const newTemplate = e.target.value;
         const id = recordIdInput.value;
+        const hopDongId = Utils.getQueryParams().hopDongId;
         Utils.updateUrlParam('template', newTemplate);
         if (id) {
-            loadData(id, newTemplate);
+            loadData(id, hopDongId, newTemplate);
         }
     });
 
@@ -180,16 +198,6 @@ document.addEventListener('DOMContentLoaded', () => {
         loginModal.style.display = 'none';
         init();
     });
-
-    // Cập nhật lại Utils để nhận params username password
-    const originalGetParams = Utils.getQueryParams;
-    Utils.getQueryParams = function () {
-        const p = originalGetParams();
-        const urlParams = new URLSearchParams(window.location.search);
-        p.username = urlParams.get('username');
-        p.password = urlParams.get('password');
-        return p;
-    };
 
     // Chạy app
     init();
