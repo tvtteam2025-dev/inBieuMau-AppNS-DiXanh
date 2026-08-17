@@ -544,7 +544,11 @@ function normalizeForJson_(value) {
 
 function clean_(value) {
   if (value === null || value === undefined) return '';
-  return String(value).trim();
+  return String(value)
+    .normalize('NFC')
+    .replace(/[\u200B-\u200D\uFEFF]/g, '')
+    .replace(/\u00A0/g, ' ')
+    .trim();
 }
 
 function isBlank_(value) {
