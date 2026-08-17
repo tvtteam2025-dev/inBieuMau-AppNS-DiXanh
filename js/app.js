@@ -26,15 +26,27 @@ document.addEventListener('DOMContentLoaded', () => {
         const params = Utils.getQueryParams();
         let user = sessionStorage.getItem('auth_user');
         let pass = sessionStorage.getItem('auth_pass');
+        let hasAuthInUrl = false;
 
         // Nếu có trên URL, ưu tiên URL và lưu vào session
         if (params.username) {
             user = params.username;
             sessionStorage.setItem('auth_user', user);
+            hasAuthInUrl = true;
         }
         if (params.password) {
             pass = params.password;
             sessionStorage.setItem('auth_pass', pass);
+            hasAuthInUrl = true;
+        }
+
+        // Chỉ đọc thông tin đăng nhập từ URL một lần. Sau đó xóa khỏi thanh địa chỉ
+        // để không ghi đè thông tin người dùng nhập lại và hạn chế lộ mật khẩu.
+        if (hasAuthInUrl) {
+            const cleanUrl = new URL(window.location.href);
+            cleanUrl.searchParams.delete('username');
+            cleanUrl.searchParams.delete('password');
+            window.history.replaceState({}, '', cleanUrl);
         }
 
         return { user, pass };
