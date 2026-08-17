@@ -1,0 +1,258 @@
+:root {
+    --primary: #2563eb;
+    --success: #16a34a;
+    --danger: #dc2626;
+    --info: #0284c7;
+    --secondary: #4b5563;
+    --sidebar-width: 340px;
+    --bg-color: #f3f4f6;
+    --border-color: #e5e7eb;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--bg-color);
+    color: #1f2937;
+    line-height: 1.5;
+}
+
+.app-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Sidebar Styling */
+.sidebar {
+    width: var(--sidebar-width);
+    background-color: white;
+    border-right: 1px solid var(--border-color);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    position: fixed;
+    height: 100vh;
+    overflow-y: auto;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+}
+
+.app-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #111827;
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.control-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.control-group label {
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.form-control {
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 0.875rem;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.form-control:focus {
+    border-color: var(--primary);
+}
+
+.action-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.btn {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    color: white;
+    transition: opacity 0.2s;
+}
+
+.btn:hover {
+    opacity: 0.9;
+}
+
+.btn-primary { background-color: var(--primary); grid-column: 1 / -1; }
+.btn-success { background-color: var(--success); }
+.btn-danger { background-color: var(--danger); }
+.btn-info { background-color: var(--info); }
+.btn-secondary { background-color: var(--secondary); grid-column: 1 / -1; }
+.btn-word-full { background-color: var(--success); grid-column: 1 / -1; font-size: 1rem; padding: 10px; }
+
+.status-message {
+    padding: 10px;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    display: none;
+}
+
+.status-message.error {
+    background-color: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #f87171;
+    display: block;
+}
+
+.status-message.warning {
+    background-color: #fef3c7;
+    color: #92400e;
+    border: 1px solid #fbbf24;
+    display: block;
+}
+
+.status-message.success {
+    background-color: #dcfce7;
+    color: #166534;
+    border: 1px solid #4ade80;
+    display: block;
+}
+
+.data-inspector {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.data-inspector h3 {
+    font-size: 1rem;
+    padding-top: 15px;
+    border-top: 1px solid var(--border-color);
+}
+
+.json-preview {
+    flex-grow: 1;
+    background-color: #f8fafc;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 10px;
+    font-size: 0.75rem;
+    font-family: monospace;
+    overflow-y: auto;
+    max-height: 400px;
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+
+/* Main Content Styling */
+.main-content {
+    margin-left: var(--sidebar-width);
+    flex-grow: 1;
+    padding: 40px;
+    display: flex;
+    justify-content: center;
+    background-color: #e2e8f0;
+    overflow-y: auto;
+}
+
+/* A4 Page Formatting */
+/* Khung xem trước - không có khổ cứng để docx-preview tự vẽ trang */
+.preview-container {
+    flex: 1;
+    overflow-y: auto;
+    background-color: #e8e8e8;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* docx-preview - wrapper ngoài */
+.preview-container .docx-wrapper {
+    background: transparent !important;
+    padding: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 20px !important; /* khoảng cách giữa các trang */
+}
+
+/* Mỗi section = 1 trang riêng biệt, có bóng đổ giống PDF viewer */
+.preview-container .docx-wrapper > section {
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2) !important;
+    margin: 0 !important;
+}
+
+.document-content {
+    font-family: "Times New Roman", Times, serif;
+    font-size: 13pt; /* Tiêu chuẩn văn bản VN */
+    line-height: 1.5;
+    color: black;
+    /* Ngăn nội dung bị tràn */
+    width: 100%;
+    overflow-x: hidden;
+}
+
+/* Ép tất cả các bảng (bị copy từ Word/Excel sang) phải nằm gọn trong trang A4 */
+.document-content table {
+    width: 100% !important;
+    max-width: 100% !important;
+    border-collapse: collapse !important;
+}
+
+.document-content td, .document-content th {
+    word-wrap: break-word;
+    max-width: 100%;
+}
+
+.document-content img {
+    max-width: 100% !important;
+    height: auto !important;
+}
+
+.document-content h1, 
+.document-content h2, 
+.document-content h3, 
+.document-content h4 {
+    text-align: center;
+    margin-bottom: 1em;
+}
+
+.document-content p {
+    text-align: justify;
+    margin-bottom: 0.5em;
+}
+
+.text-center { text-align: center; }
+.text-bold { font-weight: bold; }
+.mt-4 { margin-top: 1.5rem; }
+.mb-2 { margin-bottom: 0.5rem; }
+
+
+
+
+/* Modal Overlay */
+.modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex; justify-content: center; align-items: center;
+    z-index: 1000;
+}
+.modal-content {
+    background: white; padding: 30px; border-radius: 8px;
+    width: 350px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+

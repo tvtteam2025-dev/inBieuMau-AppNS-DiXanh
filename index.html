@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ thống In ấn Biểu mẫu HTX VT 586 - Cần Thơ</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- html2pdf.js để xuất PDF chụp màn hình (nếu cần) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <!-- Bộ thư viện Nhồi dữ liệu Word (Docxtemplater) -->
+    <script src="https://cdn.jsdelivr.net/npm/pizzip@3.1.7/dist/pizzip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/docxtemplater@3.40.2/build/docxtemplater.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+
+    <!-- Bộ thư viện Vẽ màn hình Word (Docx-Preview) -->
+    <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/docx-preview@0.3.3/dist/docx-preview.min.js"></script>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar Trái -->
+        <aside class="sidebar no-print">
+            <h2 class="app-title">In ấn biểu mẫu - Hợp tác xã 586</h2>
+
+            <div class="control-group">
+                <label>Template hiện tại:</label>
+                <select id="template-select" class="form-control">
+                    <option value="giay_chung_nhan_tv_htx">1.Giấy chứng nhận TV HTX </option>
+                    <option value="giay_de_nghi_cap_phu_hieu">2.Giấy đề nghị cấp phù hiệu</option>
+                    <option value="hop_dong_dich_vu_van_tai">3.1 CT_Hợp đồng dịch vụ vận tải</option>
+                    <option value="hcm_hop_dong_dich_vu_van_tai">3.2 HCM_Hợp đồng dịch vụ vận tải</option>
+                    <option value="lenh_van_chuyen_Can_Tho">4.1 CT_Lệnh vận chuyển</option>
+                    <option value="lenh_van_chuyen_Ho_Chi_Minh">4.2 HCM_Lệnh vận chuyển</option>
+
+                    <option value="qd_tiep_nhan_ql_phuong_tien">5.QĐ tiếp nhận QLPT</option>
+                    <option value="quyet_dinh_thu_hoi_phu_hieu">6.QĐ thu hồi phù hiệu</option>
+                    <!-- 586 -->
+                     <option value="586_giay_xac_nhan_xa_vien_grab">7.586_Giấy xác nhận xã viên Grab</option>
+                    <option value="586_giay_xac_nhan_xa_vien_xanh">8.586_Giấy xác nhận xã viên Xanh</option>
+                            <!-- Cao Sơn -->
+                     <option value="caoson_giay_xac_nhan_xa_vien_grab">9.Cao Sơn_Giấy xác nhận xã viên Grab</option>
+                    <option value="caoson_giay_xac_nhan_xa_vien_xanh">10.Cao Sơn_Giấy xác nhận xã viên Xanh</option>
+                    <!-- nasa -->
+                    <option value="nasa_giay_xac_nhan_xa_vien_grab">11.Nasa_Giấy xác nhận xã viên Grab</option>
+                    <option value="nasa_giay_xac_nhan_xa_vien_xanh">12.Nasa_Giấy xác nhận xã viên Xanh</option>
+                      <!-- mekong xanh -->
+                    <option value="mekongxanh_giay_xac_nhan_xa_vien_grab">13.Mekong Xanh_Giấy xác nhận xã viên Grab</option>
+                    <option value="mekongxanh_giay_xac_nhan_xa_vien_xanh">14.Mekong Xanh_Giấy xác nhận xã viên Xanh</option>
+               
+                </select>
+            </div>
+
+            <div class="control-group">
+                <label>ID Dữ liệu:</label>
+                <input type="text" id="record-id" class="form-control" placeholder="Nhập ID hợp đồng..." readonly>
+            </div>
+
+            <div class="action-buttons">
+                <button id="btn-reload" class="btn btn-primary">Tải lại Dữ liệu</button>
+                <button id="btn-word" class="btn btn-word-full">Xuất Word</button>
+            </div>
+
+            <div id="status-message" class="status-message"></div>
+
+            <div class="data-inspector">
+                <h3>Dữ liệu</h3>
+                <div id="data-preview" class="json-preview">Đang chờ dữ liệu...</div>
+            </div>
+        </aside>
+
+        <!-- Main Content (Khung hiển thị bản in) -->
+        <main class="main-content">
+            <div id="document-preview-container" class="preview-container">
+                <!-- docx-preview sẽ render các trang A4 vào đây -->
+                <div id="document-content">
+                    Vui lòng cung cấp tham số URL hợp lệ (ví dụ: ?template=bia&id=123)
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/utils.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/template-engine.js"></script>
+    <script src="js/export-pdf.js"></script>
+    <script src="js/export-word.js"></script>
+    <script src="js/app.js"></script>
+
+    <!-- Login Modal -->
+    <div id="login-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <h3 style="margin-bottom: 15px; text-align: center;">Đăng Nhập Hệ Thống</h3>
+            <div class="control-group">
+                <input type="text" id="login-username" class="form-control" placeholder="Tên đăng nhập">
+            </div>
+            <div class="control-group" style="margin-top: 10px;">
+                <input type="password" id="login-password" class="form-control" placeholder="Mật khẩu">
+            </div>
+            <button id="btn-login" class="btn btn-primary" style="margin-top: 15px; width: 100%;">Đăng Nhập</button>
+            <div id="login-error" class="status-message error" style="margin-top: 10px; display: none;"></div>
+        </div>
+    </div>
+</body>
+
+</html>
