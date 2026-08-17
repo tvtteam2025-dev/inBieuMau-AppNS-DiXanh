@@ -1,4 +1,4 @@
-const API_URL = 'https://script.google.com/macros/s/AKfycbxhFk89dRsK8Y-rb0C07bPv5SRZYjNmt_pizWaN7RN4cKx_muaOxJa4gYVX0wvq9qR8Mg/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbycGklakRP-ZYVkSunaCP9veTDY461fVzRCYoZmhWWDmmZJHZssevYooxbYr7IU1e9d7A/exec';
 
 const API = {
     fetchData: async function (id, hopDongId, template, username, password) {
@@ -17,10 +17,20 @@ const API = {
 
         try {
             const response = await fetch(url);
+            const data = await response.json().catch(() => null);
+
             if (!response.ok) {
-                throw new Error(`Lỗi HTTP: ${response.status}`);
+                throw new Error(
+                    data && data.message
+                        ? data.message
+                        : `Lỗi HTTP: ${response.status}`
+                );
             }
-            const data = await response.json();
+
+            if (!data) {
+                throw new Error('Máy chủ API không trả về dữ liệu JSON hợp lệ.');
+            }
+
             return data;
         } catch (error) {
             console.error('Lỗi gọi API:', error);
