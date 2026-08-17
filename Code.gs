@@ -118,6 +118,15 @@ function handleRequest_(params) {
     return jsonOutput_(response);
   } catch (error) {
     console.error(error);
+
+    if (error && error.apiCode) {
+      return jsonOutput_({
+        success: false,
+        error_code: error.apiCode,
+        message: error.message
+      });
+    }
+
     return jsonOutput_({
       success: false,
       message: 'Lỗi hệ thống: ' + error.message
@@ -173,12 +182,18 @@ function authenticate_(ss, username, password) {
 function loadRelatedData_(ss, main, requestedHopDongId) {
   const mainId = clean_(main.id);
 
-  const hopDongList = findRowsInSheetByField_(
+  const allHopDongList = findRowsInSheetByField_(
     ss,
     SHEETS.HOP_DONG,
     'id_main',
     mainId
-  ).filter(isUsableRow_);
+  );
+
+  const hopDongList = allHopDongList.filter(isUsableRow_);
+  const requestedHopDong = validateRequestedContract_(
+    allHopDongList,
+    requestedHopDongId
+  );
 
   const phuLucHopDongList = findRowsInSheetByField_(
     ss,
@@ -238,10 +253,8 @@ function loadRelatedData_(ss, main, requestedHopDongId) {
 
   return {
     hopDongList: hopDongList,
-    hopDongHienTai: selectCurrentContract_(
-      hopDongList,
-      requestedHopDongId || main.idHopDong
-    ),
+    hopDongHienTai: requestedHopDong ||
+      selectCurrentContract_(hopDongList, main.idHopDong),
     phuLucHopDongList: sortRowsByDateDesc_(phuLucHopDongList, 'ngayHieuLucPLHD'),
     phuLucHopDongMoiNhat: selectLatestByDate_(phuLucHopDongList, 'ngayHieuLucPLHD'),
     thongTinBoSungList: thongTinBoSungList,
@@ -255,6 +268,30 @@ function loadRelatedData_(ss, main, requestedHopDongId) {
     khoTaiSanList: khoTaiSanList,
     nhapXuatTaiSanList: nhapXuatTaiSanList
   };
+}
+
+function validateRequestedContract_(allHopDongList, requestedHopDongId) {
+  const contractId = clean_(requestedHopDongId);
+  if (!contractId) return null;
+
+  const contract = findByField_(allHopDongList, 'id', contractId);
+
+  if (!contract) {
+    throw apiError_(
+      'HOP_DONG_KHONG_HOP_LE',
+      'Hợp đồng được chọn không tồn tại hoặc không thuộc nhân sự này.'
+    );
+  }
+
+  if (!isUsableRow_(contract)) {
+    const contractLabel = clean_(contract.soHD) || contractId;
+    throw apiError_(
+      'HOP_DONG_DA_XOA',
+      'Hợp đồng ' + contractLabel + ' đã bị xóa, không thể xuất biểu mẫu.'
+    );
+  }
+
+  return contract;
 }
 
 function selectCurrentContract_(rows, idHopDongFromMain) {
@@ -446,6 +483,12 @@ function findByField_(rows, fieldName, value) {
 function isUsableRow_(row) {
   const deletedState = clean_(row.trang_thai || row.trang_thai_xoa || row.xoa_row).toLowerCase();
   return deletedState !== 'delete' && deletedState !== 'đã xóa' && deletedState !== 'đã xoá';
+}
+
+function apiError_(code, message) {
+  const error = new Error(message);
+  error.apiCode = code;
+  return error;
 }
 
 // ==========================================
