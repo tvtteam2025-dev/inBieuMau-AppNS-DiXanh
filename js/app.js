@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     // Các phần tử giao diện
     const templateSelect = document.getElementById('template-select');
+    const templateControl = document.getElementById('template-control');
     const recordIdInput = document.getElementById('record-id');
     const dataPreview = document.getElementById('data-preview');
     const documentContent = document.getElementById('document-content');
@@ -20,6 +21,82 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentData = null;
     let currentId = null;
     let currentHopDongId = null;
+
+    // Mỗi đơn vị chỉ nhìn thấy và sử dụng template đã được cấp cho đơn vị đó.
+    const TNM_TEMPLATES = [
+        {
+            value: 'TNM-danhgiathuviec',
+            label: '1. TNM - Đánh giá thử việc'
+        }
+    ];
+
+    const COMPANY_TEMPLATES = {
+        'CÔNG TY TNHH ĐI XANH': [
+            {
+                value: 'DX-danhgiathuviec',
+                label: '1. Đi Xanh - Đánh giá thử việc'
+            }
+        ],
+
+        'CÔNG TY TNHH TM DV TRƯỜNG NHẬT MINH': TNM_TEMPLATES,
+
+        // Giữ alias này để không lỗi nếu dữ liệu cũ trong Sheet đang ghi "NHẤT".
+        'CÔNG TY TNHH TM DV TRƯỜNG NHẤT MINH': TNM_TEMPLATES
+    };
+
+    function normalizeCompanyName(value) {
+        return String(value || '')
+            .normalize('NFC')
+            .replace(/\s+/g, ' ')
+            .trim()
+            .toUpperCase();
+    }
+
+    function setupTemplatesForCompany(data, requestedTemplate) {
+        const companyName = normalizeCompanyName(
+            data.congTyDonVi || data.main_congTyDonVi
+        );
+        const templates = COMPANY_TEMPLATES[companyName] || [];
+
+        templateSelect.innerHTML = '';
+
+        if (templates.length === 0) {
+            templateControl.style.display = 'none';
+            btnWord.disabled = true;
+            return null;
+        }
+
+        templates.forEach(function(item) {
+            const option = document.createElement('option');
+            option.value = item.value;
+            option.textContent = item.label;
+            templateSelect.appendChild(option);
+        });
+
+        const requestedIsAllowed = templates.some(function(item) {
+            return item.value === requestedTemplate;
+        });
+
+        const selectedTemplate = requestedIsAllowed
+            ? requestedTemplate
+            : templates[0].value;
+
+        templateSelect.value = selectedTemplate;
+        templateControl.style.display = 'block';
+        btnWord.disabled = false;
+
+        return selectedTemplate;
+    }
+
+    function showMissingCompanyTemplate(data) {
+        const companyName = String(
+            data.congTyDonVi || data.main_congTyDonVi || 'không xác định'
+        ).trim();
+        const message = 'Chưa cấu hình biểu mẫu cho đơn vị: ' + companyName;
+
+        Utils.showStatus(message, 'error');
+        documentContent.textContent = message;
+    }
 
     // Check Auth
     function checkAuth() {
@@ -76,8 +153,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const id = params.id;
         const hopDongId = params.hopDongId;
 
-        templateSelect.value = template;
-
         if (!id) {
             Utils.showStatus('Vui lòng truyền id trên URL (VD: ?id=123)', 'error');
             recordIdInput.value = '';
@@ -103,7 +178,14 @@ document.addEventListener('DOMContentLoaded', () => {
     async function loadData(id, hopDongId, template) {
         // Tối ưu: Nếu đã có dữ liệu của chính ID này rồi, chỉ cần render lại template
         if (currentData && currentId === id && currentHopDongId === hopDongId) {
-            await renderTemplate(template);
+            const selectedTemplate = setupTemplatesForCompany(currentData, template);
+            if (!selectedTemplate) {
+                showMissingCompanyTemplate(currentData);
+                return;
+            }
+
+            Utils.updateUrlParam('template', selectedTemplate);
+            await renderTemplate(selectedTemplate);
             return;
         }
 
@@ -155,8 +237,15 @@ document.addEventListener('DOMContentLoaded', () => {
             currentHopDongId = hopDongId;
             dataPreview.textContent = JSON.stringify(response.data, null, 2);
 
-            // Lấy giao diện template và Render
-            await renderTemplate(template);
+            // Chọn đúng danh sách template theo công ty rồi mới render.
+            const selectedTemplate = setupTemplatesForCompany(currentData, template);
+            if (!selectedTemplate) {
+                showMissingCompanyTemplate(currentData);
+                return;
+            }
+
+            Utils.updateUrlParam('template', selectedTemplate);
+            await renderTemplate(selectedTemplate);
 
         } catch (error) {
             Utils.showStatus(error.message, 'error');
