@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hệ thống In ấn Biểu mẫu HTX VT 586 - Cần Thơ</title>
+    <title>Hệ thống In biểu mẫu - Quản lý nhân sự</title>
     <link rel="stylesheet" href="styles.css">
     <!-- html2pdf.js để xuất PDF chụp màn hình (nếu cần) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
@@ -23,15 +23,11 @@
     <div class="app-container">
         <!-- Sidebar Trái -->
         <aside class="sidebar no-print">
-            <h2 class="app-title">In ấn biểu mẫu - Hợp tác xã 586</h2>
+            <h2 class="app-title">In biểu mẫu - Quản lý nhân sự</h2>
 
-            <div class="control-group">
+            <div id="template-control" class="control-group" style="display: none;">
                 <label>Template hiện tại:</label>
-                <select id="template-select" class="form-control">
-                    <option value="TNM-danhgiathuviec (1)">
-                        1. TNM - Đánh giá thử việc
-                    </option>
-                </select>
+                <select id="template-select" class="form-control"></select>
             </div>
 
             <div class="control-group">
