@@ -29,10 +29,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // nhưng không bao gồm phần mở rộng .docx.
     const COMMON_TEMPLATES = [
         // Ví dụ:
-        // {
-        //     value: 'COMMON-donxinnghiphep',
-        //     label: 'Đơn xin nghỉ phép'
-        // }
+        {
+            value: 'COMMON-camketbaomatthongtin',
+            label: 'Cam kết bảo mật thông tin'
+        }
     ];
 
     // Mỗi đơn vị chỉ nhìn thấy template dùng chung và template riêng của đơn vị đó.
