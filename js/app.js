@@ -1,7 +1,9 @@
 document.addEventListener('DOMContentLoaded', () => {
     // Các phần tử giao diện
     const templateSelect = document.getElementById('template-select');
-    const templateControl = document.getElementById('template-control');
+    const templateControl =
+        document.getElementById('template-control') ||
+        templateSelect.closest('.control-group');
     const recordIdInput = document.getElementById('record-id');
     const dataPreview = document.getElementById('data-preview');
     const documentContent = document.getElementById('document-content');
