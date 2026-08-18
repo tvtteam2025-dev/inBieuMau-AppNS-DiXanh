@@ -24,7 +24,18 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentId = null;
     let currentHopDongId = null;
 
-    // Mỗi đơn vị chỉ nhìn thấy và sử dụng template đã được cấp cho đơn vị đó.
+    // Các template dùng chung sẽ hiển thị cho mọi công ty.
+    // Khi thêm mẫu chung, value phải trùng tên file trong thư mục templates,
+    // nhưng không bao gồm phần mở rộng .docx.
+    const COMMON_TEMPLATES = [
+        // Ví dụ:
+        // {
+        //     value: 'COMMON-donxinnghiphep',
+        //     label: 'Đơn xin nghỉ phép'
+        // }
+    ];
+
+    // Mỗi đơn vị chỉ nhìn thấy template dùng chung và template riêng của đơn vị đó.
     const TNM_TEMPLATES = [
         {
             value: 'TNM-danhgiathuviec',
@@ -58,7 +69,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const companyName = normalizeCompanyName(
             data.congTyDonVi || data.main_congTyDonVi
         );
-        const templates = COMPANY_TEMPLATES[companyName] || [];
+        const companyTemplates = COMPANY_TEMPLATES[companyName] || [];
+        const templates = COMMON_TEMPLATES.concat(companyTemplates);
 
         templateSelect.innerHTML = '';
 
