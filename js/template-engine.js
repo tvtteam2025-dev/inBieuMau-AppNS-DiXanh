@@ -15,6 +15,15 @@ const TemplateEngine = {
     // Quét và cắt các mảng Date giống hệt phiên bản HTML
     parseData: function(data) {
         const enrichedData = { ...data };
+
+        // Tên công ty dùng riêng ở phần đầu biểu mẫu. Đi Xanh được chia hai
+        // dòng cho cân đối; các vị trí {{congTyDonVi}} khác vẫn giữ nguyên.
+        const companyName = String(
+            data.congTyDonVi || data.congtyDonVi || ''
+        ).trim();
+        enrichedData.congTyDonVi_header = companyName === 'CÔNG TY TNHH ĐI XANH'
+            ? 'CÔNG TY TNHH\nĐI XANH'
+            : companyName;
         
         // Hàm cộng/trừ ngày, trả về {dd, MM, yyyy, full}
         function addDays(dateStr, days) {
