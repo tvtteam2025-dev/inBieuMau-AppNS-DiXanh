@@ -50,9 +50,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 label: '1. Đi Xanh - Đánh giá thử việc'
             }
         ],
-
-        'CÔNG TY TNHH TM DV TRƯỜNG NHẬT MINH': TNM_TEMPLATES,
-
+        'CÔNG TY TNHH TM DV TRƯỜNG NHẬT MINH': [
+            {
+                value: 'DX-danhgiathuviec',
+                label: '1. Đi Xanh - Đánh giá thử việc'
+            }
+        ],
         // Giữ alias này để không lỗi nếu dữ liệu cũ trong Sheet đang ghi "NHẤT".
         'CÔNG TY TNHH TM DV TRƯỜNG NHẤT MINH': TNM_TEMPLATES
     };
