@@ -52,6 +52,10 @@ document.addEventListener('DOMContentLoaded', () => {
             {
                 value: 'DX-danhgiathuviec',
                 label: '1. Đi Xanh - Đánh giá thử việc'
+            },
+            {
+                value: 'DX-danhgiathuviec',
+                label: '2. DX - Hợp đồng thử việc'
             }
         ],
         'CÔNG TY TNHH TM DV TRƯỜNG NHẬT MINH': [
