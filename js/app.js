@@ -32,6 +32,10 @@ document.addEventListener('DOMContentLoaded', () => {
         {
             value: 'COMMON-camketbaomatthongtin',
             label: 'Cam kết bảo mật thông tin'
+        },
+        {
+            value: 'COMMON - Cam kết nội quy làm việc',
+            label: 'Cam kết nội quy làm việc'
         }
     ];
 
