@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 label: '1. Đi Xanh - Đánh giá thử việc'
             },
             {
-                value: 'DX-danhgiathuviec',
+                value: 'DX - Hợp đồng thử việc',
                 label: '2. DX - Hợp đồng thử việc'
             }
         ],
